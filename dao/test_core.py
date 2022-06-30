@@ -7,6 +7,7 @@ from .ERC20Facet import ERC20Facet
 from .ERC20Initializer import ERC20Initializer
 from . import TerminusFacet
 from . import TerminusInitializer
+from . import DebugFacet
 
 
 class MoonstreamDAOSingleContractTestCase(unittest.TestCase):
@@ -72,6 +73,7 @@ class TerminusTestCase(MoonstreamTokenTestCase):
 
         cls.terminus_initializer = initializer.address
         cls.terminus_facet = terminus_facet.address
+        cls.debug = DebugFacet.DebugFacet(diamond_address)
 
 
 class TestCoreDeployment(MoonstreamDAOSingleContractTestCase):
@@ -84,7 +86,7 @@ class TestCoreDeployment(MoonstreamDAOSingleContractTestCase):
 
         self.assertListEqual(
             self.contracts["attached"],
-            ["DiamondLoupeFacet", "OwnershipFacet"],
+            ["DiamondLoupeFacet", "OwnershipFacet", "DebugFacet"],
         )
 
 

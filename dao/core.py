@@ -22,6 +22,7 @@ from . import (
     TerminusFacet,
     TerminusInitializer,
     TerminusControllerFacet,
+    DebugFacet,
 )
 
 FACETS: Dict[str, Any] = {
@@ -31,6 +32,7 @@ FACETS: Dict[str, Any] = {
     "OwnershipFacet": OwnershipFacet,
     "TerminusFacet": TerminusFacet,
     "TerminusControllerFacet": TerminusControllerFacet,
+    "DebugFacet": DebugFacet,
 }
 
 FACET_PRECEDENCE: List[str] = [
@@ -38,6 +40,7 @@ FACET_PRECEDENCE: List[str] = [
     "OwnershipFacet",
     "DiamondLoupeFacet",
     "ERC20Facet",
+    "DebugFacet",
 ]
 
 FACET_ACTIONS: Dict[str, int] = {"add": 0, "replace": 1, "remove": 2}
@@ -191,6 +194,15 @@ def gogogo(owner_address: str, transaction_config: Dict[str, Any]) -> Dict[str, 
         return result
     result["OwnershipFacet"] = ownership_facet.address
 
+    try:
+        debug_facet = DebugFacet.DebugFacet(None)
+        debug_facet.deploy(transaction_config)
+    except Exception as e:
+        print(e)
+        result["error"] = "Failed to deploy DebugFacet"
+        return result
+    result["DebugFacet"] = debug_facet.address
+
     result["attached"] = []
 
     try:
@@ -220,6 +232,20 @@ def gogogo(owner_address: str, transaction_config: Dict[str, Any]) -> Dict[str, 
         result["error"] = "Failed to attach OwnershipFacet"
         return result
     result["attached"].append("OwnershipFacet")
+
+    try:
+        facet_cut(
+            diamond.address,
+            "DebugFacet",
+            debug_facet.address,
+            "add",
+            transaction_config,
+        )
+    except Exception as e:
+        print(e)
+        result["error"] = "Failed to attach DebugFacet"
+        return result
+    result["attached"].append("DebugFacet")
 
     return result
 
